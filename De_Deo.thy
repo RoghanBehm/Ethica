@@ -1,14 +1,8 @@
 theory De_Deo
-  imports Main
+  imports Modal
 begin
 
-typedecl i                              \<comment> \<open>worlds\<close>
-type_synonym \<sigma> = "i \<Rightarrow> bool"             \<comment> \<open>world-relative propositions\<close>
-definition mbox :: "\<sigma> \<Rightarrow> \<sigma>" ("\<box>") where "\<box>\<phi> \<equiv> \<lambda>_. \<forall>v. \<phi> v" (* true in all world *)
-definition valid :: "\<sigma> \<Rightarrow> bool" ("\<lfloor>_\<rfloor>") where "\<lfloor>\<phi>\<rfloor> \<equiv> \<forall>w. \<phi> w"
-
 locale vocab =
-(* 'thing corresponds to "entity" *)
   fixes In :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool"
     and Dep :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool"
     and CT :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool" (* conceived through *)
@@ -36,13 +30,15 @@ definition Finite_in_own_kind :: "'thing \<Rightarrow> bool" where (* D2 *)
 "Finite_in_own_kind x \<longleftrightarrow> (\<exists>y. x \<prec> y \<and> x \<noteq> y \<and> shared_nature x y)"
 
 definition Substance :: "'thing \<Rightarrow> bool" where (* D3 *)
-  "Substance x \<longleftrightarrow> In x x \<and> CT x x"
+  "Substance x \<longleftrightarrow> In x x \<and> CT x x \<and> \<not>(\<exists>c. c \<noteq> x \<and> CT x c)"
 
 definition Attribute_of :: "'thing \<Rightarrow> 'nature \<Rightarrow> bool" where (* D4 *)
 "Attribute_of x n \<longleftrightarrow> perceives_as_essence n x"
 
-definition Mode :: "'thing \<Rightarrow> bool" where (* D5 *)
-"Mode x \<longleftrightarrow> (\<exists>y. y \<noteq> x \<and> In x y \<and> CT x y)"
+definition Mode_of :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool" where (* D5: y is an affection of x *)
+  "Mode_of y x \<longleftrightarrow> y \<noteq> x \<and> In y x \<and> CT y x"
+definition Mode :: "'thing \<Rightarrow> bool" where
+  "Mode y \<longleftrightarrow> (\<exists>x. Mode_of y x)"
 
 definition God :: "'thing \<Rightarrow> bool" where (* D6 *)
 "God x \<longleftrightarrow> Substance x \<and> (\<forall>y :: 'nature.((\<exists>c :: 'thing. Attribute_of c y)
@@ -55,12 +51,20 @@ definition Compelled :: "'thing \<Rightarrow> bool" where (* D7 clause 2*)
 definition Free :: "'thing \<Rightarrow> bool" where (* D7 clause 1*)
 "Free x \<longleftrightarrow> Self_caused x \<and> Det x x \<and> \<not>Compelled x"
 
-(* definition Eternity *) (* TODO: Figure out how to formalise this *)
+(* definition Eternity *) (* TODO: Figure out how to formalise this.
+                                   Strong exists?4] *)
 end
 
 locale Spinoza = vocab +
-  assumes involves_nec: "involves x P \<longleftrightarrow> \<lfloor>\<box>(P x)\<rfloor>"
+  assumes involves_nec: "involves x P \<Longrightarrow> \<lfloor>\<box>(P x)\<rfloor>"
+    and   what_is: "\<And>x. In x x \<or> (\<exists>y. In x y \<and> x \<noteq> y)" (* A1 *)
+    and   how_is: "\<And>x. \<not>(\<exists>y. x \<noteq> y \<and> CT x y) \<Longrightarrow> CT x x " (* A2 *)
+
 begin
+proposition P1: "Substance x \<Longrightarrow> Mode_of y x \<Longrightarrow> \<not>CT x y "
+  unfolding Substance_def Mode_of_def by blast
+
+
 end
 
 

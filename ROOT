@@ -1,6 +1,6 @@
 session Ethica = HOL +
   options [document = pdf, document_output = "output"]
-  theories De_Deo
+  theories De_Deo Modal
 (*theories [document = false]
     A
     B

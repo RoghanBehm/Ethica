@@ -22,9 +22,9 @@ definition nature_of :: "'thing \<Rightarrow> 'nature set" where
 
 definition shared_nature :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool" where
 "shared_nature x y \<longleftrightarrow> nature_of x \<inter> nature_of y \<noteq> {}"
-(* *********** *)
 
 
+ 
 (* Spinoza's defs *)
 
 definition Self_caused :: "'thing \<Rightarrow> bool" where (* D1 *)
@@ -57,8 +57,14 @@ definition Compelled :: "'thing \<Rightarrow> bool" where (* D7 clause 2*)
 definition Free :: "'thing \<Rightarrow> bool" where (* D7 clause 1*)
 "Free x \<longleftrightarrow> Self_caused x \<and> Det x x \<and> \<not>Compelled x"
 
-(* definition Eternity *) (* TODO: Figure out how to formalise this.
-                                   Strong exists?4] *)
+(* definition Eternity *) (* (* D7 *)
+                               TODO: Figure out how to formalise this.
+                               Strong exists?4] *)
+
+definition no_shared_attributes :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool" where
+"no_shared_attributes x y \<longleftrightarrow> \<not>(\<exists>n. Attribute_of x n \<and> Attribute_of y n)"
+(* *********** *)
+
 end
 
 locale Spinoza = vocab +
@@ -67,9 +73,41 @@ locale Spinoza = vocab +
     and   how_is: "\<And>x. \<not>(\<exists>y. x \<noteq> y \<and> CT x y) \<Longrightarrow> CT x x " (* A2 *)
     and   cause_effect: "Det x y \<Longrightarrow> \<lfloor>\<box>(exists x m\<rightarrow> exists y)\<rfloor>" (* A3 *)
     and   no_cause: "\<lfloor>\<lambda>w. \<not>(\<exists>y. Det y x ) \<longrightarrow> \<not> exists x w \<rfloor>" (* A3 converse *)
+    and   cause_ct: "Dep x y \<Longrightarrow> CT x y" (* A4 *)
+    and   not_common: "\<not>shared_nature x y \<Longrightarrow> \<not> CT x y \<and> \<not> CT y x" (* A5 *)
+    (* I'll see if I can get by without A6, given the strength of my D4 *)
+    and   may_not_exist:"\<lfloor>\<diamond>(m\<not>(exists x))\<rfloor> \<Longrightarrow> \<not>involves x exist" (* A7 *)
+
 begin
 proposition P1: "Substance x \<Longrightarrow> Mode_of y x \<Longrightarrow> \<not>CT x y "
   unfolding Substance_def Mode_of_def by blast
+
+proposition P2:
+  assumes sx: "Substance x" and sy: "Substance y"
+      and nsa: "no_shared_attributes x y"
+    shows "\<not> shared_nature x y"
+proof 
+  assume "shared_nature x y"
+  then obtain n where ns: "n \<in> nature_of x \<and> n \<in> nature_of y"
+    unfolding shared_nature_def by auto
+  from ns have ms: "expresses x n \<or> constitutes_essence n x"
+    unfolding nature_of_def by auto
+  from ns have ks: "expresses y n \<or> constitutes_essence n y"
+    unfolding nature_of_def by auto
+  from ks ms show False
+  proof (elim disjE)
+    assume "constitutes_essence n x" "constitutes_essence n y"
+    then show False using nsa no_shared_attributes_def Attribute_of_def by auto
+  next
+    assume "constitutes_essence n y" "expresses x n"
+    then show False using sorry
+  next 
+    assume "expresses y n" "expresses x n"
+    then show False using sorry
+  next assume"expresses y n" "constitutes_essence n x" 
+    then show False using sorry
+  qed 
+qed
 
 end
 

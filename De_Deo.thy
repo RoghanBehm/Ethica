@@ -102,6 +102,8 @@ proposition P2:
     shows "\<not> shared_nature x y"
   using assms unfolding shared_nature_def no_shared_attributes_def by (auto simp: substance_nature)
 
+proposition P3: "\<not> shared_nature x y \<Longrightarrow> \<not>Dep x y \<and> \<not> Dep y x"
+  using not_common cause_ct by blast
 end
 
 

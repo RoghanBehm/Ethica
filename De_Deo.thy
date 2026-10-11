@@ -4,7 +4,6 @@ begin
 
 locale vocab =
   fixes In :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool"
-    and Dep :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool"
     and CT :: "'thing \<Rightarrow> 'thing \<Rightarrow> bool" (* conceived through *)
     and exists :: "'thing \<Rightarrow> \<sigma>"
     and involves :: "'thing \<Rightarrow> ('thing \<Rightarrow> \<sigma>) \<Rightarrow> bool"
@@ -81,7 +80,7 @@ locale Spinoza = vocab +
     and   how_is: "\<And>x. \<not>(\<exists>y. x \<noteq> y \<and> CT x y) \<Longrightarrow> CT x x " (* A2 *)
     and   cause_effect: "Det x y \<Longrightarrow> \<lfloor>\<box>(exists x m\<rightarrow> exists y)\<rfloor>" (* A3 *)
     and   no_cause: "\<lfloor>\<lambda>w. \<not>(\<exists>y. Det y x ) \<longrightarrow> \<not> exists x w \<rfloor>" (* A3 converse *)
-    and   cause_ct: "Dep x y \<Longrightarrow> CT x y" (* A4 *)
+    and   cause_ct: "Det y x \<Longrightarrow> CT x y" (* A4 *)
     and   not_common: "\<not>shared_nature x y \<Longrightarrow> \<not> CT x y \<and> \<not> CT y x" (* A5 *)
     (* I'll see if I can get by without A6, given the strength of my D4 *)
     and   may_not_exist:"\<lfloor>\<diamond>(m\<not>(exists x))\<rfloor> \<Longrightarrow> \<not>involves x exist" (* A7 *)
@@ -102,7 +101,7 @@ proposition P2:
     shows "\<not> shared_nature x y"
   using assms unfolding shared_nature_def no_shared_attributes_def by (auto simp: substance_nature)
 
-proposition P3: "\<not> shared_nature x y \<Longrightarrow> \<not>Dep x y \<and> \<not> Dep y x"
+proposition P3: "\<not> shared_nature x y \<Longrightarrow> \<not>Det x y \<and> \<not>Det y x"
   using not_common cause_ct by blast
 end
 

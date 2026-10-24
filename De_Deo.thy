@@ -38,8 +38,7 @@ definition Finite_in_own_kind :: "'thing \<Rightarrow> bool" where (* D2 *)
 
 definition Substance :: "'thing \<Rightarrow> bool" where (* D3 *)
   "Substance x \<longleftrightarrow> In x x \<and> CT x x \<and> \<not>(\<exists>c. c \<noteq> x \<and> CT x c)"
-(* maybe i need at add that there is no nature but its own that 
-can constitute its essence? *)
+
 definition Attribute_of :: "'thing \<Rightarrow> 'nature \<Rightarrow> bool" where (* D4 *)
 "Attribute_of x n \<longleftrightarrow> Substance x \<and> constitutes_essence n x" 
 (* Deleuzian reading taken: what the intellect perceives of an
@@ -83,26 +82,47 @@ locale Spinoza = vocab +
     and   cause_ct: "Det y x \<Longrightarrow> CT x y" (* A4 *)
     and   not_common: "\<not>shared_nature x y \<Longrightarrow> \<not> CT x y \<and> \<not> CT y x" (* A5 *)
     (* I'll see if I can get by without A6, given the strength of my D4 *)
-    and   may_not_exist:"\<lfloor>\<diamond>(m\<not>(exists x))\<rfloor> \<Longrightarrow> \<not>involves x exist" (* A7 *)
+    and   may_not_exist:"\<lfloor>\<diamond>(m\<not>(exists x))\<rfloor> \<Longrightarrow> \<not>involves x exists" (* A7 *)
 
 begin
 (* lemmas *)
 lemma substance_not_mode: "Substance x \<Longrightarrow> \<not> Mode x"
   unfolding Substance_def Mode_def Mode_of_def by auto
 lemma substance_nature: "Substance x \<Longrightarrow> nature_of x = {n. Attribute_of x n}"
-  by (auto simp: nature_of_char dest: substance_not_mode)
-(* **** *)
+  by (auto simp: nature_of_char substance_not_mode)
+(* ****** *)
 proposition P1: "Substance x \<Longrightarrow> Mode_of y x \<Longrightarrow> \<not>CT x y "
   unfolding Substance_def Mode_of_def by blast
 
 proposition P2:
-  assumes sx: "Substance x" and sy: "Substance y"
-      and nsa: "no_shared_attributes x y"
+  assumes "Substance x" and "Substance y"
+      and "no_shared_attributes x y"
     shows "\<not> shared_nature x y"
   using assms unfolding shared_nature_def no_shared_attributes_def by (auto simp: substance_nature)
 
 proposition P3: "\<not> shared_nature x y \<Longrightarrow> \<not>Det x y \<and> \<not>Det y x"
   using not_common cause_ct by blast
+
+
+\<comment> \<open>It seems that the rhs of the disjunction can't be proven without an additional axiom.
+   We can show that a difference of modes implies inequality, but not that inequality implies
+   a difference of modes when attributes are equal.\<close>
+proposition P4:
+  assumes "x \<noteq> y"
+  shows "(\<exists>n. Attribute_of x n \<noteq> Attribute_of y n) \<or> (\<exists> c. Mode_of x c \<noteq> Mode_of y c)"
+proof (cases "\<exists>n. Attribute_of x n \<noteq> Attribute_of y n")
+  case True
+  then show ?thesis by auto
+next
+  case False
+  then have shared_attrs: "\<forall>n. Attribute_of x n = Attribute_of y n" by auto
+  show ?thesis sorry
+  
+    
+qed
+
+
+
 end
 
 

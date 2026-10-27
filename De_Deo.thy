@@ -91,7 +91,7 @@ lemma substance_not_mode: "Substance x \<Longrightarrow> \<not> Mode x"
 lemma substance_nature: "Substance x \<Longrightarrow> nature_of x = {n. Attribute_of x n}"
   by (auto simp: nature_of_char substance_not_mode)
 (* ****** *)
-proposition P1: "Substance x \<Longrightarrow> Mode_of y x \<Longrightarrow> \<not>CT x y "
+proposition P1: "Substance x \<Longrightarrow> Mode_of y x \<Longrightarrow> \<not>CT x y"
   unfolding Substance_def Mode_of_def by blast
 
 proposition P2:
@@ -116,13 +116,26 @@ proof (cases "\<exists>n. Attribute_of x n \<noteq> Attribute_of y n")
 next
   case False
   then have shared_attrs: "\<forall>n. Attribute_of x n = Attribute_of y n" by auto
-  show ?thesis sorry
-  
-    
+  show ?thesis sorry  
 qed
 
-
-
+\<comment> \<open> I'm not sure that \<not> shared_nature x y is provable without another axiom \<close>
+proposition P5:
+  assumes "Substance x" and "Substance y" and "x \<noteq> y"
+  shows "\<not>(shared_nature x y \<or> (\<forall>n. Attribute_of x n = Attribute_of y n))"
+proof
+  assume "shared_nature x y \<or> (\<forall>n. Attribute_of x n = Attribute_of y n)"
+  then show False
+  proof
+    assume "\<forall>n. Attribute_of x n = Attribute_of y n"
+    then show False using assms P4 substance_not_mode unfolding Mode_def by blast
+  next
+    assume "shared_nature x y"
+    then have "nature_of x \<inter> nature_of y \<noteq> {}"
+      unfolding shared_nature_def .
+    show False using assms substance_nature P4 unfolding Substance_def nature_of_def sorry
+  qed
+qed
 end
 
 
